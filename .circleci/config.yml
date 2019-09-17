@@ -1,0 +1,45 @@
+version: 2.1
+executors:
+  my-executor:
+    docker:
+      - image: circleci/golang:1.12
+    working_directory: /go/src/github.com/vds/go-resman
+
+jobs:
+  one:
+    executor: my-executor
+    environment:
+      GO111MODULE=on
+    steps:
+      - checkout
+      - run: go mod download
+      - run: go test ./pkg/database
+      - run: mkdir -p bin
+      - run: ./build.sh
+      - persist_to_workspace:
+          root: bin
+          paths: server
+  two:
+    executor: my-executor
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - attach_workspace:
+          at: ./bin
+      - run: curl https://cli-assets.heroku.com/install.sh | sh
+      - run: docker login --username=_ --password=$HEROKU_API_KEY registry.heroku.com
+      - run: heroku container:push web -a go-resman
+      - run: heroku container:release web -a go-resman
+workflows:
+  version: 2
+  one_and_two:
+    jobs:
+      - one
+      - two:
+          requires:
+            - one
+          filters:
+            branches:
+              only:
+                - master
