@@ -39,7 +39,7 @@ workflows:
       - two:
           requires:
             - one
-          filters:
-            branches:
-              only:
-                - master
+            filters:
+              branches:
+                only:
+                  - master
