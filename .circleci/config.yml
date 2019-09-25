@@ -39,3 +39,6 @@ workflows:
       - two: # your custom job; runs test suite 1
           requires: # test1 will not run until the `build` job is completed.
             - one
+          filters:
+            branches:
+              only: master
