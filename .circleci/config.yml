@@ -33,13 +33,7 @@ jobs:
       - run: heroku container:release web -a go-resman
 workflows:
   version: 2
-  one_and_two:
+  build_and_test:
     jobs:
       - one
-      - two:
-          requires:
-            - one
-            filters:
-              branches:
-                only:
-                  - master
+      - two
