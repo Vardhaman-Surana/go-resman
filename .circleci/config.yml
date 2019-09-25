@@ -33,7 +33,9 @@ jobs:
       - run: heroku container:release web -a go-resman
 workflows:
   version: 2
-  build_and_test:
+  one_and_two:
     jobs:
-      - one
-      - two
+      - one  # your custom job from your config, that builds your code
+      - two: # your custom job; runs test suite 1
+          requires: # test1 will not run until the `build` job is completed.
+            - one
