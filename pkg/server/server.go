@@ -6,23 +6,22 @@ import (
 	"github.com/vds/go-resman/pkg/database"
 )
 
-type Server struct{
+type Server struct {
 	DB database.Database
 }
 
-
-func NewServer(data database.Database)(*Server,error){
+func NewServer(data database.Database) (*Server, error) {
 	if data == nil {
 		return nil, errors.New("server expects a valid database instance")
 	}
-	return &Server{DB:data}, nil
+	return &Server{DB: data}, nil
 }
 
-func(server *Server)Start()(*gin.Engine,error) {
-	router,err:=NewRouter(server.DB)
-	if err!=nil{
-		return nil,err
+func (server *Server) Start() (*gin.Engine, error) {
+	router, err := NewRouter(server.DB)
+	if err != nil {
+		return nil, err
 	}
 	r := router.Create()
-	return r,nil
+	return r, nil
 }

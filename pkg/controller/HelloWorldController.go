@@ -7,21 +7,21 @@ import (
 	"time"
 )
 
-type HelloWorldController struct{
+type HelloWorldController struct {
 	database.Database
 }
 
-func NewHelloWorldController(db database.Database)*HelloWorldController{
-	hc:=new(HelloWorldController)
-	hc.Database=db
+func NewHelloWorldController(db database.Database) *HelloWorldController {
+	hc := new(HelloWorldController)
+	hc.Database = db
 	return hc
 }
 
-func(h *HelloWorldController)SayHello(c *gin.Context){
-	c.JSON(http.StatusOK,gin.H{
-		"msg":"Hello World",
-		"time": time.Now().String(),
-		"created_by" : "vardhaman",
-		"completed":"23-08-2019",
+func (h *HelloWorldController) SayHello(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"msg":        "Hello World",
+		"time":       time.Now().String(),
+		"created_by": "vardhaman",
+		"completed":  "23-08-2019",
 	})
 }

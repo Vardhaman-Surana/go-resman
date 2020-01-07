@@ -1,64 +1,60 @@
 package database
 
 import (
+	"context"
 	"errors"
 	"github.com/vds/go-resman/pkg/models"
 )
 
-
-var(
-	ErrInternal = errors.New("internal server error")
-	ErrDupEmail=errors.New("email already used try a different one")
-	ErrInvalidCredentials = errors.New("incorrect login details")
-	ErrInvalidOwner = errors.New("owner does not exist")
-	ErrInvalidOwnerCreator=errors.New("can not update owner created by other admin")
-	ErrInvalidRestaurantCreator=errors.New("can not update restaurant created by other admin")
-	ErrNonExistingRestaurant=errors.New("restaurant does not exist")
-	ErrInvalidRestaurantOwner=errors.New("can not update restaurant owned by others")
-	ErrInvalidDish=errors.New("dish does not exist")
-	ErrInvalidRestaurantDish=errors.New("can not update dish of other restaurant")
-	)
-
+var (
+	ErrInternal                 = errors.New("internal server error")
+	ErrDupEmail                 = errors.New("email already used try a different one")
+	ErrInvalidCredentials       = errors.New("incorrect login details")
+	ErrInvalidOwner             = errors.New("owner does not exist")
+	ErrInvalidOwnerCreator      = errors.New("can not update owner created by other admin")
+	ErrInvalidRestaurantCreator = errors.New("can not update restaurant created by other admin")
+	ErrNonExistingRestaurant    = errors.New("restaurant does not exist")
+	ErrInvalidRestaurantOwner   = errors.New("can not update restaurant owned by others")
+	ErrInvalidDish              = errors.New("dish does not exist")
+	ErrInvalidRestaurantDish    = errors.New("can not update dish of other restaurant")
+)
 
 type Database interface {
-	ShowNearBy(location *models.Location)(string,error)
+	ShowNearBy(ctx context.Context, location *models.Location) (string, error)
 
+	CreateUser(ctx context.Context, user *models.UserReg) (string, error)
+	LogInUser(ctx context.Context, cred *models.Credentials) (string, error)
+	ShowAdmins(ctx context.Context, ) (string, error)
+	UpdateAdmin(ctx context.Context, admin *models.UserOutput) (string, error)
+	RemoveAdmins(ctx context.Context, adminIDs ...string) error
 
-	CreateUser(user *models.UserReg)error
-	LogInUser(cred *models.Credentials)(string,error)
-	ShowAdmins()(string,error)
-	UpdateAdmin(admin *models.UserOutput)error
-	RemoveAdmins(adminIDs...string)error
+	ShowOwners(ctx context.Context, userAuth *models.UserAuth) (string, error)
+	CreateOwner(ctx context.Context, creatorID string, owner *models.OwnerReg) (*models.UserOutput, error)
 
-	ShowOwners(userAuth *models.UserAuth)(string,error)
-	CreateOwner(creatorID string,owner *models.OwnerReg)error
+	CheckOwnerCreator(ctx context.Context, creatorID string, ownerID string) error
+	UpdateOwner(ctx context.Context, owner *models.UserOutput) (string, error)
+	RemoveOwners(ctx context.Context, userAuth *models.UserAuth, ownerIDs ...string) error
 
-	CheckOwnerCreator(creatorID string,ownerID string)error
-	UpdateOwner(owner *models.UserOutput)error
-	GetOwnerID(ownerEmail string)(string,error)
-	RemoveOwners(userAuth *models.UserAuth,ownerIDs...string)error
+	CheckAdmin(ctx context.Context, adminID string) error
+	ShowRestaurants(ctx context.Context, userAuth *models.UserAuth) (string, error)
+	InsertRestaurant(ctx context.Context, restaurant *models.Restaurant) (*models.RestaurantOutput, error)
+	ShowAvailableRestaurants(ctx context.Context, userAuth *models.UserAuth) (string, error)
+	InsertOwnerForRestaurants(ctx context.Context, userAuth *models.UserAuth, ownerID string, resIDs ...int) error
+	RemoveOwnerForRestaurants(ctx context.Context, userAuth *models.UserAuth, ownerID string, resIDs ...int) error
 
+	CheckRestaurantCreator(ctx context.Context, creatorID string, resID int) error
+	UpdateRestaurant(ctx context.Context, restaurant *models.RestaurantOutput) (*models.RestaurantOutput, error)
 
-	CheckAdmin(adminID string)error
-	ShowRestaurants(userAuth *models.UserAuth)(string,error)
-	InsertRestaurant(restaurant *models.Restaurant)error
-	ShowAvailableRestaurants(userAuth *models.UserAuth)(string,error)
-	InsertOwnerForRestaurants(userAuth *models.UserAuth,ownerID string,resIDs...int)error
+	RemoveRestaurants(ctx context.Context, userAuth *models.UserAuth, resIDs ...int) error
 
+	ShowMenu(ctx context.Context, resID int) (string, error)
+	CheckRestaurantOwner(ctx context.Context, ownerID string, resID int) error
+	InsertDishes(ctx context.Context, dishes models.Dish, resID int) (*models.DishOutput, error)
+	UpdateDish(ctx context.Context, dish *models.DishOutput) (*models.DishOutput, error)
+	CheckRestaurantDish(ctx context.Context, resID int, dishID int) error
 
-	CheckRestaurantCreator(creatorID string,resID int)error
-	UpdateRestaurant(restaurant *models.RestaurantOutput)error
+	RemoveDishes(ctx context.Context, dishIDs ...int) error
 
-	RemoveRestaurants(userAuth *models.UserAuth,resIDs...int)error
-
-	ShowMenu(resID int)(string,error)
-	CheckRestaurantOwner(ownerID string,resID int)error
-	InsertDishes(dishes []models.Dish,resID int)error
-	UpdateDish(dish *models.DishOutput)error
-	CheckRestaurantDish(resID int,dishID int)error
-
-	RemoveDishes(dishIDs...int)error
-
-	StoreToken(token string)error
-	VerifyToken(token string)bool
+	StoreToken(ctx context.Context, token string) error
+	VerifyToken(ctx context.Context, token string) bool
 }

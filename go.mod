@@ -14,6 +14,7 @@ require (
 	github.com/golang-migrate/migrate v3.5.4+incompatible
 	github.com/google/uuid v1.1.1
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
+	github.com/sirupsen/logrus v1.4.1
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
 	google.golang.org/appengine v1.6.1 // indirect
 )
