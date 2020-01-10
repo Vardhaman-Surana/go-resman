@@ -16,7 +16,12 @@ func main() {
 	if port == "" {
 		port = "3000"
 	}
-	db, err := mysql.NewMySqlDB("restaurant")
+	dbURL := os.Getenv("DBURL")
+	if dbURL == "" {
+		dbURL = "root:password@tcp(localhost:3306)/restaurant_management?charset=utf8mb4&collation=utf8mb4_unicode_ci&parseTime=true&multiStatements=true"
+	}
+
+	db, err := mysql.NewMySqlDB(dbURL)
 	if err != nil {
 		panic(err)
 	}
