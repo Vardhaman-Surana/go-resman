@@ -29,7 +29,6 @@ func init() {
 	}
 	count:=0
 	for{
-		time.Sleep(10* time.Second)
 		db, err = mysql.NewMySqlDB(dbUrl)
 		if err != nil {
 			log.Printf("can not get db instance: %v", err)
@@ -40,6 +39,7 @@ func init() {
 		if count > 15{
 			log.Fatalf("can not get db instance: %v", err)
 		}
+		time.Sleep(10* time.Second)
 	}
 
 	err=testhelpers.ClearDB(db)
