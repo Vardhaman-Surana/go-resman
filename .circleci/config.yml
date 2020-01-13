@@ -3,10 +3,6 @@ executors:
   my-executor:
     docker:
       - image: circleci/golang:1.12
-      - image: circleci/golang:1.12
-      - image: circleci/golang:1.12
-      - image: circleci/golang:1.12
-
     working_directory: /go/src/github.com/vds/go-resman
 
 jobs:
@@ -16,6 +12,9 @@ jobs:
       GO111MODULE=on
     steps:
       - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run: docker-compose up -d
       - run: go mod download
       - run: go test ./cmd/
       - run: mkdir -p bin
