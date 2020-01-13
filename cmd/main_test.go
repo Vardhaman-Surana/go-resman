@@ -10,6 +10,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
+	"time"
 )
 
 
@@ -26,10 +27,21 @@ func init() {
 	if dbUrl == "" {
 		dbUrl = "root:password@tcp(localhost:3306)/restaurant_management_test?charset=utf8mb4&collation=utf8mb4_unicode_ci&parseTime=true&multiStatements=true"
 	}
-	db, err = mysql.NewMySqlDB(dbUrl)
-	if err != nil {
-		log.Fatalf("can not get db instance: %v", err)
+	count:=0
+	for{
+		time.Sleep(10* time.Second)
+		db, err = mysql.NewMySqlDB(dbUrl)
+		if err != nil {
+			log.Printf("can not get db instance: %v", err)
+			count++
+		}else{
+			break
+		}
+		if count > 15{
+			log.Fatalf("can not get db instance: %v", err)
+		}
 	}
+
 	err=testhelpers.ClearDB(db)
 	if err != nil {
 		log.Fatalf("can not clear db err: %v", err)
