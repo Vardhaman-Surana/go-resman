@@ -13,7 +13,6 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          docker_layer_caching: true
       - run: docker-compose up -d
       - run: go mod download
       - run: go test ./cmd/
@@ -27,7 +26,6 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          docker_layer_caching: true
       - attach_workspace:
           at: ./bin
       - run: curl https://cli-assets.heroku.com/install.sh | sh
