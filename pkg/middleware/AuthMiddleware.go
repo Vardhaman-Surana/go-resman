@@ -16,7 +16,7 @@ const (
 	SuperAdmin         = "superAdmin"
 	Owner              = "owner"
 	tokenExpireMessage = "Token expired please login again"
-	statusTokenInvalid = 498
+	StatusTokenInvalid = 498
 )
 
 func TokenValidator(db database.Database) gin.HandlerFunc {
@@ -28,8 +28,8 @@ func TokenValidator(db database.Database) gin.HandlerFunc {
 		isValid := db.VerifyToken(c.Request.Context(), tokenStr)
 		if !isValid {
 			err := "invalid token"
-			logger.LogError(reqId.(string), reqUrl, err, statusTokenInvalid)
-			c.JSON(statusTokenInvalid, gin.H{
+			logger.LogError(reqId.(string), reqUrl, err, StatusTokenInvalid)
+			c.JSON(StatusTokenInvalid, gin.H{
 				"error": err,
 			})
 			c.Abort()
@@ -51,40 +51,44 @@ func AuthMiddleware(c *gin.Context) {
 
 	if err != nil {
 		if err == jwt.ErrSignatureInvalid {
-			logger.LogError(reqId.(string), reqUrl, fmt.Sprintf("auth token signature not valid: %v", err), statusTokenInvalid)
-			c.JSON(statusTokenInvalid, gin.H{
+			logger.LogError(reqId.(string), reqUrl, fmt.Sprintf("auth token signature not valid: %v", err), StatusTokenInvalid)
+			c.JSON(StatusTokenInvalid, gin.H{
 				"error": err.Error(),
 			})
 			c.Abort()
+			return
 		}
 		if strings.Contains(err.Error(), "expired") {
-			logger.LogError(reqId.(string), reqUrl, fmt.Sprintf("auth token expired: %v", err), statusTokenInvalid)
-			c.JSON(statusTokenInvalid, gin.H{
+			logger.LogError(reqId.(string), reqUrl, fmt.Sprintf("auth token expired: %v", err), StatusTokenInvalid)
+			c.JSON(StatusTokenInvalid, gin.H{
 				"error": tokenExpireMessage,
 			})
 			c.Abort()
+			return
 		}
-		logger.LogError(reqId.(string), reqUrl, fmt.Sprintf("error in parsing auth token: %v", err), statusTokenInvalid)
-		c.JSON(statusTokenInvalid, gin.H{
+		logger.LogError(reqId.(string), reqUrl, fmt.Sprintf("error in parsing auth token: %v", err), StatusTokenInvalid)
+		c.JSON(StatusTokenInvalid, gin.H{
 			"error": err.Error(),
 		})
 		c.Abort()
 		return
 	}
 	if !tkn.Valid {
-		logger.LogError(reqId.(string), reqUrl, "Invalid Token", statusTokenInvalid)
-		c.JSON(statusTokenInvalid, gin.H{
+		logger.LogError(reqId.(string), reqUrl, "Invalid Token", StatusTokenInvalid)
+		c.JSON(StatusTokenInvalid, gin.H{
 			"error": "Invalid Token",
 		})
 		c.Abort()
+		return
 	}
 	isValid := IsValidUserType(claims.Role)
 	if !isValid {
-		logger.LogError(reqId.(string), reqUrl, fmt.Sprintf("Invalid role:%v", claims.Role), statusTokenInvalid)
+		logger.LogError(reqId.(string), reqUrl, fmt.Sprintf("Invalid role:%v", claims.Role), StatusTokenInvalid)
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"error": "Invalid role",
 		})
 		c.Abort()
+		return
 	}
 	userAuth := &models.UserAuth{
 		ID:   claims.ID,

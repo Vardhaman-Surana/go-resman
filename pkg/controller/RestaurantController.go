@@ -38,9 +38,7 @@ func (r *RestaurantController) GetNearBy(c *gin.Context) {
 		})
 		return
 	}
-	var jsonData []struct {
-		Name string `json:"name" binding:"required"`
-	}
+	var jsonData []models.RestaurantOutput
 	logger.LogDebug(reqId, reqUrl, "getting nearby restaurants")
 	stringData, err := r.ShowNearBy(c.Request.Context(), &location)
 	if stringData == "" {
@@ -132,7 +130,6 @@ func (r *RestaurantController) EditRestaurant(c *gin.Context) {
 	err := c.ShouldBindJSON(&restaurant)
 	if err != nil {
 		logger.LogError(reqId, reqUrl, fmt.Sprintf("error in parsing request body:%v", err), http.StatusBadRequest)
-		fmt.Printf("err is %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})

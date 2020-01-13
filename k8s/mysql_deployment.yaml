@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: database
+  namespace: restaurant-management
+  labels:
+    app: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: database
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: password
+            - name: MYSQL_DATABASE
+              value: restaurant
+            - name: MYSQL_USER
+              value: vardhaman
+            - name: MYSQL_PASSWORD
+              value: password
+          volumeMounts:
+            - name: mysql-persistent-storage-data
+              mountPath: /usr/lib/mysql/data
+      volumes:
+        - name: mysql-persistent-storage-data
+          persistentVolumeClaim:
+            claimName: mysql-pv-claim
+
+
+
+

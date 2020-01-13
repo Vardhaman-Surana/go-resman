@@ -5,6 +5,9 @@ import (
 	"github.com/vds/go-resman/pkg/controller"
 	"github.com/vds/go-resman/pkg/database"
 	"github.com/vds/go-resman/pkg/middleware"
+
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type Router struct {
@@ -34,6 +37,7 @@ func (r *Router) Create() *gin.Engine {
 	ginRouter.Use(middleware.GenerateRequestId)
 	//added for cors
 
+	ginRouter.GET("/metrics",gin.WrapH(promhttp.Handler()))
 	ginRouter.POST("/register", regController.Register)
 	ginRouter.POST("/login", loginController.LogIn)
 	ginRouter.GET("/logout", loginController.LogOut)
@@ -47,7 +51,7 @@ func (r *Router) Create() *gin.Engine {
 		manage.PUT("/owners/:ownerID", ownerController.EditOwner)
 		manage.DELETE("/owners", ownerController.DeleteOwners)
 		manage.GET("/owners/:ownerID/restaurants", resController.GetOwnerRestaurants)
-		manage.GET("/owners/:ownerID/restaurants/available", resController.GetAvailableRestaurants)
+		manage.GET("/available/restaurants", resController.GetAvailableRestaurants)
 		manage.POST("/owners/:ownerID/restaurants", resController.AddOwnerForRestaurants)
 
 		manage.POST("/restaurants", resController.AddRestaurant)

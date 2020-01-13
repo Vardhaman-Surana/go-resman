@@ -28,12 +28,14 @@ func ValidateRestaurantAndCreator(db database.Database) gin.HandlerFunc {
 						"error": err.Error(),
 					})
 					c.Abort()
+					return
 				}
 				logger.LogError(reqId.(string), reqUrl, fmt.Sprintf("internal server error: %v", err), http.StatusUnauthorized)
 				c.JSON(http.StatusInternalServerError, gin.H{
 					"error": "internal server error",
 				})
 				c.Abort()
+				return
 			}
 		} else if userAuth.Role == Owner {
 			logger.LogDebug(reqId.(string), reqUrl, "checking for owner")
@@ -52,6 +54,7 @@ func ValidateRestaurantAndCreator(db database.Database) gin.HandlerFunc {
 					"error": "internal server error",
 				})
 				c.Abort()
+				return
 			}
 		}
 		c.Set("restaurantID", resID)

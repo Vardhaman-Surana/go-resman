@@ -16,7 +16,7 @@ func TestLogInController(t *testing.T) {
 	}{
 		{name: "When an admin is successfully logged in",credentials: testhelpers.AdminCredentials(),wantedStatus: http.StatusOK},
 		{name: "When a superAdmin is successfully logged in",credentials: testhelpers.SuperAdminCredentials(),wantedStatus: http.StatusOK},
-		{name: "When an owner is successfully logged in",credentials: testhelpers.OwnerCredentials(),wantedStatus: http.StatusOK},
+		{name: "When an owner is successfully logged in",credentials: testhelpers.OwnerByAdminCredentials(),wantedStatus: http.StatusOK},
 		{name: "SuperAdmin with invalid credentials",credentials: &models.Credentials{ Role: middleware.Admin,Email:"a@email.com" ,Password: "dummySuperPa"},wantedStatus: http.StatusUnauthorized},
 		{name: "with empty fields",credentials: &models.Credentials{ Role:"", Email:"",Password: ""}, wantedStatus: http.StatusBadRequest},
 		{name: "For invalid role",credentials: &models.Credentials{ Role:"invalidRole",Email: "email",Password: "pass"},wantedStatus: http.StatusBadRequest},

@@ -25,12 +25,12 @@ const (
 	OwnerTable                = "owners"
 	InsertUser                = "insert into %s(id,email_id,name,password) values(?,?,?,?)"
 	GetUserIDPassword         = "select id,password from %s where email_id=?"
-	GetOwnersForSuperAdmin    = "select JSON_ARRAYAGG(JSON_OBJECT('id',id,'email',email_id,'name', name)) from owners"
+	GetOwnersForSuperAdmin    = "select JSON_ARRAYAGG(JSON_OBJECT('id',id,'email',email_id,'name', name)) from owners order by id"
 	InsertOwner               = "insert into owners(id,email_id,name,password,creator_id) values(?,?,?,?,?)"
 	OwnerUpdate               = "update owners set email_id=?,name=? where id=?"
-	SelectRestaurantsForSuper = "select JSON_ARRAYAGG(JSON_OBJECT('id',id,'name',name, 'lat',lat,'lng',lng)) from restaurants "
-	SelectRestaurantsForAdmin = "select JSON_ARRAYAGG(JSON_OBJECT('id',id,'name', name, 'lat',lat,'lng',lng)) from restaurants  where creator_id=?"
-	SelectRestaurantsForOwner = "select JSON_ARRAYAGG(JSON_OBJECT('id',id,'name', name, 'lat',lat,'lng',lng)) from restaurants  where owner_id=?"
+	SelectRestaurantsForSuper = "select JSON_ARRAYAGG(JSON_OBJECT('id',id,'name',name, 'lat',lat,'lng',lng)) from restaurants order by id"
+	SelectRestaurantsForAdmin = "select JSON_ARRAYAGG(JSON_OBJECT('id',id,'name', name, 'lat',lat,'lng',lng)) from restaurants  where creator_id=? order by id"
+	SelectRestaurantsForOwner = "select JSON_ARRAYAGG(JSON_OBJECT('id',id,'name', name, 'lat',lat,'lng',lng)) from restaurants  where owner_id=? order by id"
 	InsertRestaurant          = "insert into restaurants(name,lat,lng,creator_id) values(?,?,?,?)"
 	RestaurantUpdate          = "update restaurants set name=?,lat=?,lng=? where id=?"
 	CheckRestaurantOwner      = "select owner_id from restaurants where id=?"
@@ -50,19 +50,19 @@ type MySqlDB struct {
 	*sql.DB
 }
 
-func NewMySqlDB(dbName string) (*MySqlDB, error) {
-	//for docker servicename:3306 e.g. database:3306
-	serverName := "localhost:3306"
-	user := "root"
-	password := "password"
+func NewMySqlDB(dbUrl string) (*MySqlDB, error) {
+	////for docker servicename:3306 e.g. database:3306
+	//serverName := "localhost:3306"
+	//user := "root"
+	//password := "password"
 
-	connectionString := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&collation=utf8mb4_unicode_ci&parseTime=true&multiStatements=true", user, password, serverName, dbName)
-	db, err := sql.Open("mysql", connectionString)
-	err = migrateDatabase(db)
-	if err != nil {
-		fmt.Print(err)
-		return nil, err
-	}
+	//connectionString := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&collation=utf8mb4_unicode_ci&parseTime=true&multiStatements=true", user, password, serverName, dbName)
+	db, err := sql.Open("mysql", dbUrl)
+		err = migrateDatabase(db)
+		if err != nil {
+			fmt.Print(err)
+			return nil, err
+		}
 	mySqlDB := &MySqlDB{db}
 	return mySqlDB, err
 }
@@ -73,8 +73,8 @@ func (db *MySqlDB) ShowNearBy(ctx context.Context, location *models.Location) (s
 	reqUrlVal := ctx.Value("reqUrl")
 	reqUrl := reqUrlVal.(string)
 	logger.LogDebug(reqId, reqUrl, "executing GetNearByRestaurant query")
-	var result string
-	rows, err := db.Query("select JSON_ARRAYAGG(JSON_OBJECT('name',name)) from restaurants where ST_Distance_Sphere(point(lat,lng),point(?,?))/1000 < 10", location.Lat, location.Lng)
+	var result sql.NullString
+	rows, err := db.Query("select JSON_ARRAYAGG(JSON_OBJECT('id',id,'name',name, 'lat',lat,'lng',lng)) from restaurants where ST_Distance_Sphere(point(lat,lng),point(?,?))/1000 < 10", location.Lat, location.Lng)
 	defer rows.Close()
 	if err != nil {
 		logger.LogError(reqId, reqUrl, fmt.Sprintf("error in executing query: %v", err), 0)
@@ -87,7 +87,7 @@ func (db *MySqlDB) ShowNearBy(ctx context.Context, location *models.Location) (s
 		return "", database.ErrInternal
 	}
 	logger.LogInfo(reqId, reqUrl, "getNearBy restaurant from db successful", 0)
-	return result, nil
+	return result.String, nil
 }
 
 func (db *MySqlDB) CreateUser(ctx context.Context, user *models.UserReg) (string, error) {
@@ -108,7 +108,8 @@ func (db *MySqlDB) CreateUser(ctx context.Context, user *models.UserReg) (string
 		logger.LogError(reqId, reqUrl, fmt.Sprintf("error in executing query: %v", err), 0)
 		return "", database.ErrInternal
 	}
-	pass, err := encryption.GenerateHash(ctx, user.Password)
+	logger.LogDebug(reqId, reqUrl, "generating password hash")
+	pass, err := encryption.GenerateHash(user.Password)
 	if err != nil {
 		logger.LogError(reqId, reqUrl, fmt.Sprintf("error in generating password hash: %v", err), 0)
 		return "", database.ErrInternal
@@ -187,7 +188,8 @@ func (db *MySqlDB) CreateOwner(ctx context.Context, creatorID string, owner *mod
 		logger.LogError(reqId, reqUrl, fmt.Sprintf("error in executing query: %v", err), 0)
 		return nil, database.ErrInternal
 	}
-	pass, err := encryption.GenerateHash(ctx, owner.Password)
+	logger.LogDebug(reqId, reqUrl, "generating password hash")
+	pass, err := encryption.GenerateHash(owner.Password)
 	if err != nil {
 		logger.LogError(reqId, reqUrl, fmt.Sprintf("error in generating hash of password: %v", err), 0)
 		return nil, database.ErrInternal
@@ -951,7 +953,7 @@ func showRestaurantsForOwner(ctx context.Context, db *MySqlDB, ownerID string) (
 	reqId := reqIdVal.(string)
 	reqUrlVal := ctx.Value("reqUrl")
 	reqUrl := reqUrlVal.(string)
-	var result string
+	var result sql.NullString
 	logger.LogDebug(reqId, reqUrl, "executing query to get restaurants for owner")
 
 	rows, err := db.Query(SelectRestaurantsForOwner, ownerID)
@@ -968,7 +970,7 @@ func showRestaurantsForOwner(ctx context.Context, db *MySqlDB, ownerID string) (
 		return "", database.ErrInternal
 	}
 	logger.LogInfo(reqId, reqUrl, "restaurants retrieved for owner from db successfully", 0)
-	return result, nil
+	return result.String, nil
 }
 
 func showAvailableRestaurantsForSuper(ctx context.Context, db *MySqlDB) (string, error) {

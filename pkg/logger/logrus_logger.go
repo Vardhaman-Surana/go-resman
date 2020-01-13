@@ -39,9 +39,16 @@ func LogError(requestId string, requestUrl string, msg string, status int) {
 	logger.WithFields(fields).Error(msg)
 }
 
-func LogFatal(requestId string, requestUrl string, msg string, status int) {
-	fields := GetFields(requestId, requestUrl, status)
-	logger.WithFields(fields).Fatal(msg)
+func LogFatal(msg string){
+	pc, _, _, ok := runtime.Caller(2)
+	var fname string
+	if ok {
+		funcName := strings.Split(runtime.FuncForPC(pc).Name(), "/")
+		fname = funcName[len(funcName)-1]
+	}
+	logger.WithFields(logrus.Fields{
+		"function": fname,
+	}).Fatal(msg)
 }
 
 func LogDebug(requestId string, requestUrl string, msg string) {

@@ -3,6 +3,10 @@ executors:
   my-executor:
     docker:
       - image: circleci/golang:1.12
+      - image: circleci/golang:1.12
+      - image: circleci/golang:1.12
+      - image: circleci/golang:1.12
+
     working_directory: /go/src/github.com/vds/go-resman
 
 jobs:
@@ -13,7 +17,7 @@ jobs:
     steps:
       - checkout
       - run: go mod download
-      - run: go test ./pkg/database
+      - run: go test ./cmd/
       - run: mkdir -p bin
       - run: ./build.sh
       - persist_to_workspace:

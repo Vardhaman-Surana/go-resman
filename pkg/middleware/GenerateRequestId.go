@@ -19,6 +19,7 @@ func GenerateRequestId(c *gin.Context) {
 			"error": "internal server error",
 		})
 		c.Abort()
+		return
 	}
 	ctx := context.WithValue(c.Request.Context(), "reqId", reqId.String())
 	ctx1 := context.WithValue(ctx, "reqUrl", reqUrl)

@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: restaurant-server
+  namespace: restaurant-management
+  labels:
+    app: restaurant-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: restaurant-server
+  template:
+    metadata:
+      labels:
+        app: restaurant-server
+    spec:
+      containers:
+        - name: server
+          image: vardhaman123/go-resman:latest
+          ports:
+            - name: rserverport
+              containerPort: 4000
+          env:
+            - name: DBURL
+              value: "vardhaman:password@tcp(mysql:3306)/restaurant?charset=utf8mb4&collation=utf8mb4_unicode_ci&parseTime=true&multiStatements=true"
+            - name: PORT
+              value: "4000"

@@ -1,0 +1,13 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: kibana
+  namespace: restaurant-management
+  labels:
+    app: kibana
+spec:
+  selector:
+    app: kibana
+  ports:
+    - port: 5601
+

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: restaurant-server
+  namespace: restaurant-management
+  labels:
+    app: restaurant-server
+spec:
+  type: NodePort
+  ports:
+    - port: 4000
+  selector:
+    app: restaurant-server

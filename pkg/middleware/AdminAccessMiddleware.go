@@ -33,6 +33,7 @@ func SuperAdminAccessOnly(c *gin.Context) {
 			"error": err,
 		})
 		c.Abort()
+		return
 	}
 	c.Next()
 }

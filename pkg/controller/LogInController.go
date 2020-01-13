@@ -43,8 +43,8 @@ func (l *LogInController) LogIn(c *gin.Context) {
 	logger.LogDebug(reqId, reqUrl, "checking for valid user type")
 	isValid := middleware.IsValidUserType(cred.Role)
 	if !isValid {
-		logger.LogError(reqId, reqUrl, "invalid user type", http.StatusNotFound)
-		c.Status(http.StatusNotFound)
+		logger.LogError(reqId, reqUrl, "invalid user type", http.StatusBadRequest)
+		c.Status(http.StatusBadRequest)
 		return
 	}
 	logger.LogDebug(reqId, reqUrl, "authenticating user from db")

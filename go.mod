@@ -12,9 +12,12 @@ require (
 	github.com/gin-gonic/gin v1.4.0
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/golang-migrate/migrate v3.5.4+incompatible
+	github.com/google/pprof v0.0.0-20191218002539-d4f498aebedc // indirect
 	github.com/google/uuid v1.1.1
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
-	github.com/sirupsen/logrus v1.4.1
+	github.com/prometheus/client_golang v1.3.0
+	github.com/sirupsen/logrus v1.4.2
+	golang.org/x/arch v0.0.0-20191126211547-368ea8f32fff // indirect
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
 	google.golang.org/appengine v1.6.1 // indirect
 )

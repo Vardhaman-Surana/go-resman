@@ -33,7 +33,7 @@ func (a *AdminController) GetAdmins(c *gin.Context) {
 	logger.LogDebug(reqId, reqUrl, "getting admins from db")
 	stringData, err = a.ShowAdmins(c.Request.Context())
 	if err != nil {
-		logger.LogError(reqId, reqUrl, fmt.Sprintf("auth token signature not valid:%v", err), http.StatusInternalServerError)
+		logger.LogError(reqId, reqUrl, fmt.Sprintf("error in retrieving admins from db:%v", err), http.StatusInternalServerError)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
