@@ -36,7 +36,7 @@ func init() {
 		}else{
 			break
 		}
-		if count > 15{
+		if count > 7{
 			log.Fatalf("can not get db instance: %v", err)
 		}
 		time.Sleep(10* time.Second)
