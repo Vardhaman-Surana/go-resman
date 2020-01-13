@@ -39,11 +39,10 @@ workflows:
   version: 2
   one_and_two:
     jobs:
-      - one
-      - two:
-          requires:
+      - one  # your custom job from your config, that builds your code
+      - two: # your custom job; runs test suite 1
+          requires: # test1 will not run until the `build` job is completed.
             - one
           filters:
             branches:
-              only:
-                - master
+              only: master
