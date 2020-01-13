@@ -15,9 +15,7 @@ jobs:
       - setup_remote_docker
       - run: docker-compose up -d
       - run: go mod download
-      - run: cd cmd
-      - run: go test ./
-      - run: cd ..
+      - run: go test ./cmd/
       - run: mkdir -p bin
       - run: ./build.sh
       - persist_to_workspace:
