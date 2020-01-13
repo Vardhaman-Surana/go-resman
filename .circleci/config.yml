@@ -12,7 +12,7 @@ jobs:
       GO111MODULE=on
     steps:
       - checkout
-      - setup_remote_docker:
+      - setup_remote_docker
       - run: docker-compose up -d
       - run: go mod download
       - run: go test ./cmd/
@@ -25,7 +25,7 @@ jobs:
     executor: my-executor
     steps:
       - checkout
-      - setup_remote_docker:
+      - setup_remote_docker
       - attach_workspace:
           at: ./bin
       - run: curl https://cli-assets.heroku.com/install.sh | sh
