@@ -1076,7 +1076,7 @@ func removeOwnersByAdmin(ctx context.Context, db *MySqlDB, creatorID string, own
 		if numDeletedRows == 0 {
 			ErrEntries = append(ErrEntries, i)
 		} else {
-			_, err = db.Exec("Update Restaurants set owner_id=null where owner_id=?", id)
+			_, err = db.Exec("Update restaurants set owner_id=null where owner_id=?", id)
 			if err != nil {
 				logger.LogError(reqId, reqUrl, fmt.Sprintf("error in executing query: %v", err), 0)
 				return database.ErrInternal
