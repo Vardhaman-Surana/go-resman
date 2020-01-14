@@ -27,6 +27,7 @@ func NewCreateOwnerRequest(token string,owner *models.OwnerReg,baseUrl string)(*
 }
 
 func AssertOwner(t *testing.T,got *models.UserOutput,want *models.UserOutput){
+	t.Helper()
 	if !reflect.DeepEqual(got,want){
 		t.Fatalf("want %v got %v",want,got)
 	}
@@ -86,6 +87,7 @@ func NewGetOwnerRequest(token string,baseUrl string)(*http.Request,error){
 }
 
 func AssertOwners(t *testing.T,got []models.UserOutput,want []models.UserOutput){
+	t.Helper()
 	if !reflect.DeepEqual(got,want){
 		t.Fatalf("want %v got %v",want,got)
 	}

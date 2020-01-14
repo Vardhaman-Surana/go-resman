@@ -22,6 +22,7 @@ func NewAddDishRequest(token string, resID int, dishe *models.DishOutput,baseUrl
 }
 
 func AssertDish(t *testing.T, got *models.DishOutput, want *models.DishOutput) {
+	t.Helper()
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("want %v got %v", want, got)
 	}
@@ -51,6 +52,7 @@ func NewDeleteDishRequest(token string, resID int, dishId int,baseUrl string)(*h
 }
 
 func AssertMenu(t *testing.T, got []models.DishOutput, want []models.DishOutput) {
+	t.Helper()
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("want %v got %v", want, got)
 	}

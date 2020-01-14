@@ -13,9 +13,10 @@ type Logger struct {
 
 var logger *Logger
 
-func InitLogger() {
+func InitLogger(level logrus.Level) {
 	logger = new(Logger)
 	logger.Logger = logrus.New()
+	logger.SetLevel(level)
 	logger.SetOutput(os.Stdout)
 	logger.SetFormatter(&logrus.JSONFormatter{
 		FieldMap: logrus.FieldMap{

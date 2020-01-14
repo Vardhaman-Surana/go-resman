@@ -44,6 +44,7 @@ func NewUpdateAdminRequest(token string,admin *models.UserOutput,baseUrl string)
 }
 
 func AssertAdmin(t *testing.T,got *models.UserOutput,want *models.UserOutput){
+	t.Helper()
 	if !reflect.DeepEqual(got,want){
 		t.Fatalf("want %v got %v",want,got)
 	}
@@ -61,6 +62,7 @@ func NewDeleteAdminRequest(token string, id string,baseUrl string) (*http.Reques
 
 
 func AssertAdmins(t *testing.T,got []models.UserOutput,want []models.UserOutput){
+	t.Helper()
 	if !reflect.DeepEqual(got,want){
 		t.Fatalf("want %v got %v",want,got)
 	}

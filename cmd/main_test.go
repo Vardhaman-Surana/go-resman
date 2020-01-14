@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"github.com/vds/go-resman/pkg/database/mysql"
 	"github.com/vds/go-resman/pkg/logger"
 	"github.com/vds/go-resman/pkg/server"
@@ -21,7 +22,7 @@ var (
 )
 
 func init() {
-	logger.InitLogger()
+	logger.InitLogger(logrus.ErrorLevel)
 	var err error
 	dbUrl := os.Getenv("DBURL")
 	if dbUrl == "" {

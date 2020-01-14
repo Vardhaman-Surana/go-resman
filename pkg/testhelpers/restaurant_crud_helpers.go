@@ -27,6 +27,7 @@ func NewCreateRestaurantRequest(token string, restaurant *models.RestaurantOutpu
 }
 
 func AssertRestaurant(t *testing.T, got *models.RestaurantOutput, want *models.RestaurantOutput) {
+	t.Helper()
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("want %v got %v", want, got)
 	}
@@ -86,6 +87,7 @@ func NewGetRestaurantRequest(token string, baseUrl string) (*http.Request, error
 }
 
 func AssertRestaurants(t *testing.T, got []models.RestaurantOutput, want []models.RestaurantOutput) {
+	t.Helper()
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("want %v got %v", want, got)
 	}

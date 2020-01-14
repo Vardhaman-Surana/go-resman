@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/sirupsen/logrus"
 	"github.com/vds/go-resman/pkg/database/mysql"
 	"github.com/vds/go-resman/pkg/logger"
 	"github.com/vds/go-resman/pkg/server"
@@ -10,7 +11,7 @@ import (
 func main() {
 	// create database instance
 	// when not using db4free the restaurant
-	logger.InitLogger()
+	logger.InitLogger(logrus.InfoLevel)
 
 	port := os.Getenv("PORT")
 	if port == "" {
