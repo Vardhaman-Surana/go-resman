@@ -7,4 +7,4 @@ ENV GO111MODULE=on
 COPY ./ ./
 RUN go mod download
 RUN go mod verify
-CMD CGO_ENABLED=0 go test ./cmd/
+CMD CGO_ENABLED=0 go test ./cmd/ -v
