@@ -13,7 +13,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - run: docker-compose up --build --abort-on-container-exit
+      - run: docker-compose up --build --abort-on-container-exit --exit-code-from server
       - run: mkdir -p bin
       - run: ./build.sh
       - persist_to_workspace:
