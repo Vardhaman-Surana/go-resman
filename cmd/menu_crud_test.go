@@ -309,7 +309,7 @@ func TestMenu(t *testing.T) {
 			name: "for an existing restaurant by owner",
 			token: ownerByAdminToken,
 			resID: 2,
-			wantedStatus: http.StatusBadRequest,
+			wantedStatus: http.StatusOK,
 			wantedMenu: testhelpers.GetOwnerRestaurantMenu(),
 		},
 	}
