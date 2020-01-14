@@ -8,8 +8,8 @@ COPY ./ ./
 RUN CGO_ENABLED=0 GOOS=linux go build -o ./bin/server ./cmd/main.go
 
 FROM heroku/heroku:18 AS restaurant-management-server
-RUN apk --no-cache add ca-certificates
-RUN apk add --no-cache bash
+#RUN apk --no-cache add ca-certificates
+#RUN apk add --no-cache bash
 COPY --from=builder /go/src/github.com/vds/go-resman/database/. ./database/
 COPY --from=builder /go/src/github.com/vds/go-resman/bin/server .
 CMD ["./server"]
