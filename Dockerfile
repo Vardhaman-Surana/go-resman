@@ -7,7 +7,7 @@ RUN go mod verify
 COPY ./ ./
 RUN CGO_ENABLED=0 GOOS=linux go build -o ./bin/server ./cmd/main.go
 
-FROM alpine:latest AS restaurant-management-server
+FROM heroku/heroku:18 AS restaurant-management-server
 RUN apk --no-cache add ca-certificates
 RUN apk add --no-cache bash
 COPY --from=builder /go/src/github.com/vds/go-resman/database/. ./database/

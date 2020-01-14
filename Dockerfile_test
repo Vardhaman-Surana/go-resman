@@ -4,9 +4,8 @@ RUN set -ex; \
     apk add --no-cache git
 WORKDIR /go/src/github.com/vds/go-resman/
 ENV GO111MODULE=on
-COPY ./go.mod ./go.sum ./
+COPY ./ ./
 RUN go mod download
 RUN go mod verify
-COPY ./ ./
-RUN go clean -testcache
+RUN go test clean -testcache
 CMD CGO_ENABLED=0 go test ./cmd/
