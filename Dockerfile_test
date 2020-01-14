@@ -7,5 +7,4 @@ ENV GO111MODULE=on
 COPY ./ ./
 RUN go mod download
 RUN go mod verify
-RUN go clean github.com/vds/go-resman
 CMD CGO_ENABLED=0 go test ./cmd/
