@@ -9,7 +9,7 @@ executors:
           MYSQL_DATABASE: restaurant_management_test
           MYSQL_USER: vardhaman
           MYSQL_PASSWORD: mypass
-          MYSQL_HOST: mysql
+          MYSQL_HOST: database
     working_directory: /go/src/github.com/vds/go-resman
 
 jobs:
