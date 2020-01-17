@@ -62,7 +62,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		logger.LogFatal(fmt.Sprintf("can not create router: %v", err))
 	}
-	newServer := httptest.NewServer(router)
+	newServer := httptest.NewServer(router.Engine)
 	serverUrl = newServer.URL
 	os.Exit(m.Run())
 }
