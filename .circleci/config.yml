@@ -4,7 +4,7 @@ executors:
     docker:
       - image: circleci/golang:1.12
       - image: mysql:8.0
-        environment:
+        env:
           MYSQL_ROOT_PASSWORD: password
           MYSQL_DATABASE: restaurant_management_test
           MYSQL_USER: vardhaman
@@ -22,18 +22,18 @@ jobs:
       - run: go mod download
       - run: go mod verify
       - run: go test ./cmd/ -v
-      - run: mkdir -p bin
-      - run: ./build.sh
-      - persist_to_workspace:
-          root: bin
-          paths: server
+#      - run: mkdir -p bin
+#      - run: ./build.sh
+#      - persist_to_workspace:
+#          root: bin
+#          paths: server
   two:
     executor: my-executor
     steps:
       - checkout
       - setup_remote_docker
-      - attach_workspace:
-          at: ./bin
+#      - attach_workspace:
+#          at: ./bin
       - run: curl https://cli-assets.heroku.com/install.sh | sh
       - run: docker login --username=_ --password=$HEROKU_API_KEY registry.heroku.com
       - run: heroku container:push web -a go-resman
