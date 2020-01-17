@@ -26,7 +26,7 @@ func init() {
 	var err error
 	dbUrl := os.Getenv("DBURL")
 	if dbUrl == "" {
-		dbUrl = "vardhaman:mypass@tcp(database:3306)/restaurant_management_test?charset=utf8mb4&collation=utf8mb4_unicode_ci&parseTime=true&multiStatements=true"
+		dbUrl = "vardhaman:mypass@tcp(127.0.0.1:3306)/restaurant_management_test?charset=utf8mb4&collation=utf8mb4_unicode_ci&parseTime=true&multiStatements=true"
 	}
 	count:=0
 	for{
