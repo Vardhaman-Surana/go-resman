@@ -23,10 +23,8 @@ func NewMenuController(db database.Database) *MenuController {
 }
 
 func (m *MenuController) GetMenu(c *gin.Context) {
-	reqIdVal := c.Request.Context().Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := c.Request.Context().Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	 reqId,reqUrl := logger.GetRequestFieldsFromContext(c.Request.Context())
+
 	logger.LogDebug(reqId, reqUrl, "retrieving restaurant id from url and parsing the body")
 	res, _ := c.Get("restaurantID")
 	resID := res.(int)
@@ -51,10 +49,8 @@ func (m *MenuController) GetMenu(c *gin.Context) {
 }
 
 func (m *MenuController) AddDishes(c *gin.Context) {
-	reqIdVal := c.Request.Context().Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := c.Request.Context().Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	 reqId,reqUrl := logger.GetRequestFieldsFromContext(c.Request.Context())
+
 	logger.LogDebug(reqId, reqUrl, "retrieving restaurant id from url and parsing the body")
 	res, _ := c.Get("restaurantID")
 	resID := res.(int)
@@ -82,10 +78,8 @@ func (m *MenuController) AddDishes(c *gin.Context) {
 }
 
 func (m *MenuController) EditDish(c *gin.Context) {
-	reqIdVal := c.Request.Context().Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := c.Request.Context().Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	 reqId,reqUrl := logger.GetRequestFieldsFromContext(c.Request.Context())
+
 	logger.LogDebug(reqId, reqUrl, "retrieving restaurant id from url and parsing the body")
 	var dish models.DishOutput
 	res, _ := c.Get("restaurantID")
@@ -131,10 +125,8 @@ func (m *MenuController) EditDish(c *gin.Context) {
 }
 
 func (m *MenuController) DeleteDishes(c *gin.Context) {
-	reqIdVal := c.Request.Context().Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := c.Request.Context().Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	 reqId,reqUrl := logger.GetRequestFieldsFromContext(c.Request.Context())
+
 	logger.LogDebug(reqId, reqUrl, "retrieving restaurant id and query parameters from url")
 	multipleIdString := c.Request.URL.Query().Get("id")
 	if multipleIdString == "" {

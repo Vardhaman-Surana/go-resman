@@ -37,7 +37,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	err = router.Run(":" + port)
+	err = router.Engine.Run(":" + port)
 	if err != nil {
 		panic(err)
 	}

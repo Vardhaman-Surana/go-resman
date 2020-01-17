@@ -22,11 +22,7 @@ func NewAdminController(db database.Database) *AdminController {
 }
 
 func (a *AdminController) GetAdmins(c *gin.Context) {
-	reqIdVal := c.Request.Context().Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := c.Request.Context().Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
-
+	reqId,reqUrl := logger.GetRequestFieldsFromContext(c.Request.Context())
 	jsonData := &[]models.UserOutput{}
 	var stringData string
 	var err error
@@ -50,10 +46,8 @@ func (a *AdminController) GetAdmins(c *gin.Context) {
 }
 
 func (a *AdminController) EditAdmin(c *gin.Context) {
-	reqIdVal := c.Request.Context().Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := c.Request.Context().Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	 reqId,reqUrl := logger.GetRequestFieldsFromContext(c.Request.Context())
+
 	adminID := c.Param("adminID")
 	var admin models.UserOutput
 	admin.ID = adminID
@@ -89,10 +83,8 @@ func (a *AdminController) EditAdmin(c *gin.Context) {
 }
 
 func (a *AdminController) DeleteAdmins(c *gin.Context) {
-	reqIdVal := c.Request.Context().Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := c.Request.Context().Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	 reqId,reqUrl := logger.GetRequestFieldsFromContext(c.Request.Context())
+
 	logger.LogDebug(reqId, reqUrl, "parsing query parameter")
 	multipleIdString := c.Request.URL.Query().Get("id")
 	if multipleIdString == "" {

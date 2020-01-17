@@ -2,7 +2,6 @@ package server
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
 	"github.com/vds/go-resman/pkg/database"
 )
 
@@ -17,7 +16,7 @@ func NewServer(data database.Database) (*Server, error) {
 	return &Server{DB: data}, nil
 }
 
-func (server *Server) Start() (*gin.Engine, error) {
+func (server *Server) Start() (*Router, error) {
 	router, err := NewRouter(server.DB)
 	if err != nil {
 		return nil, err

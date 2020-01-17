@@ -24,10 +24,8 @@ func NewRestaurantController(db database.Database) *RestaurantController {
 }
 
 func (r *RestaurantController) GetNearBy(c *gin.Context) {
-	reqIdVal := c.Request.Context().Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := c.Request.Context().Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	 reqId,reqUrl := logger.GetRequestFieldsFromContext(c.Request.Context())
+
 	logger.LogDebug(reqId, reqUrl, "parsing request body")
 	var location models.Location
 	err := c.ShouldBindJSON(&location)
@@ -52,10 +50,8 @@ func (r *RestaurantController) GetNearBy(c *gin.Context) {
 }
 
 func (r *RestaurantController) GetRestaurants(c *gin.Context) {
-	reqIdVal := c.Request.Context().Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := c.Request.Context().Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	 reqId,reqUrl := logger.GetRequestFieldsFromContext(c.Request.Context())
+
 	value, _ := c.Get("userAuth")
 	userAuth := value.(*models.UserAuth)
 	jsonData := &[]models.RestaurantOutput{}
@@ -81,10 +77,8 @@ func (r *RestaurantController) GetRestaurants(c *gin.Context) {
 }
 
 func (r *RestaurantController) AddRestaurant(c *gin.Context) {
-	reqIdVal := c.Request.Context().Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := c.Request.Context().Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	 reqId,reqUrl := logger.GetRequestFieldsFromContext(c.Request.Context())
+
 	value, _ := c.Get("userAuth")
 	userAuth := value.(*models.UserAuth)
 	var restaurant models.Restaurant
@@ -110,10 +104,8 @@ func (r *RestaurantController) AddRestaurant(c *gin.Context) {
 }
 
 func (r *RestaurantController) EditRestaurant(c *gin.Context) {
-	reqIdVal := c.Request.Context().Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := c.Request.Context().Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	 reqId,reqUrl := logger.GetRequestFieldsFromContext(c.Request.Context())
+
 	value, _ := c.Get("userAuth")
 	userAuth := value.(*models.UserAuth)
 	logger.LogDebug(reqId, reqUrl, "verifying user role")
@@ -149,10 +141,8 @@ func (r *RestaurantController) EditRestaurant(c *gin.Context) {
 }
 
 func (r *RestaurantController) DeleteRestaurants(c *gin.Context) {
-	reqIdVal := c.Request.Context().Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := c.Request.Context().Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	 reqId,reqUrl := logger.GetRequestFieldsFromContext(c.Request.Context())
+
 	value, _ := c.Get("userAuth")
 	userAuth := value.(*models.UserAuth)
 	logger.LogDebug(reqId, reqUrl, "getting query parameter from request")
@@ -204,10 +194,8 @@ func (r *RestaurantController) DeleteRestaurants(c *gin.Context) {
 	})
 }
 func (r *RestaurantController) GetOwnerRestaurants(c *gin.Context) {
-	reqIdVal := c.Request.Context().Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := c.Request.Context().Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	 reqId,reqUrl := logger.GetRequestFieldsFromContext(c.Request.Context())
+
 	ownerID := c.Param("ownerID")
 	value, _ := c.Get("userAuth")
 	userAuth := value.(*models.UserAuth)
@@ -256,10 +244,8 @@ func (r *RestaurantController) GetOwnerRestaurants(c *gin.Context) {
 }
 
 func (r *RestaurantController) GetAvailableRestaurants(c *gin.Context) {
-	reqIdVal := c.Request.Context().Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := c.Request.Context().Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	 reqId,reqUrl := logger.GetRequestFieldsFromContext(c.Request.Context())
+
 	value, _ := c.Get("userAuth")
 	userAuth := value.(*models.UserAuth)
 	jsonData := &[]models.RestaurantOutput{}
@@ -283,10 +269,8 @@ func (r *RestaurantController) GetAvailableRestaurants(c *gin.Context) {
 }
 
 func (r *RestaurantController) AddOwnerForRestaurants(c *gin.Context) {
-	reqIdVal := c.Request.Context().Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := c.Request.Context().Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	 reqId,reqUrl := logger.GetRequestFieldsFromContext(c.Request.Context())
+
 	ownerID := c.Param("ownerID")
 	value, _ := c.Get("userAuth")
 	userAuth := value.(*models.UserAuth)

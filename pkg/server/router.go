@@ -5,21 +5,22 @@ import (
 	"github.com/vds/go-resman/pkg/controller"
 	"github.com/vds/go-resman/pkg/database"
 	"github.com/vds/go-resman/pkg/middleware"
-
-
-	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/vds/go-resman/pkg/prometheus"
 )
 
 type Router struct {
-	db database.Database
+	db      database.Database
+	pathMap map[string]string
+	Engine *gin.Engine
 }
 
 func NewRouter(db database.Database) (*Router, error) {
 	router := new(Router)
 	router.db = db
+	router.pathMap = make(map[string]string)
 	return router, nil
 }
-func (r *Router) Create() *gin.Engine {
+func (r *Router) Create() *Router {
 	ginRouter := gin.New()
 
 	//Controllers
@@ -29,15 +30,14 @@ func (r *Router) Create() *gin.Engine {
 	menuController := controller.NewMenuController(r.db)
 	adminController := controller.NewAdminController(r.db)
 	helloworldController := controller.NewHelloWorldController(r.db)
-
 	ownerController := controller.NewOwnerController(r.db)
+
 	//Routes
 	//added for cors
 	ginRouter.Use(middleware.AllowOptions, middleware.SetResponseHeader)
-	ginRouter.Use(middleware.GenerateRequestId)
-	//added for cors
+	ginRouter.Use(middleware.InstrumentPrometheus(&r.pathMap),middleware.GenerateRequestId)
 
-	ginRouter.GET("/metrics",gin.WrapH(promhttp.Handler()))
+	ginRouter.GET("/metrics", gin.WrapH(prometheus.NewHandler()))
 	ginRouter.POST("/register", regController.Register)
 	ginRouter.POST("/login", loginController.LogIn)
 	ginRouter.GET("/logout", loginController.LogOut)
@@ -84,6 +84,10 @@ func (r *Router) Create() *gin.Engine {
 
 	}
 	ginRouter.GET("/restaurantsNearBy", resController.GetNearBy)
+	r.Engine = ginRouter
 
-	return ginRouter
+	for _, ri := range r.Engine.Routes() {
+		r.pathMap[ri.Handler] = ri.Path
+	}
+	return r
 }

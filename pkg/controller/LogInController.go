@@ -26,10 +26,8 @@ func NewLogInController(db database.Database) *LogInController {
 	return lc
 }
 func (l *LogInController) LogIn(c *gin.Context) {
-	reqIdVal := c.Request.Context().Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := c.Request.Context().Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	 reqId,reqUrl := logger.GetRequestFieldsFromContext(c.Request.Context())
+
 	var cred models.Credentials
 	logger.LogDebug(reqId, reqUrl, "parsing request body")
 	err := c.ShouldBindJSON(&cred)
@@ -78,10 +76,8 @@ func (l *LogInController) LogIn(c *gin.Context) {
 }
 
 func (l *LogInController) LogOut(c *gin.Context) {
-	reqIdVal := c.Request.Context().Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := c.Request.Context().Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	 reqId,reqUrl := logger.GetRequestFieldsFromContext(c.Request.Context())
+
 	logger.LogDebug(reqId, reqUrl, "getting token from header")
 	tokenStr := c.Request.Header.Get("token")
 	if tokenStr == "" {

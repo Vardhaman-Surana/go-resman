@@ -10,6 +10,10 @@ import (
 )
 
 func GenerateRequestId(c *gin.Context) {
+	if c.Request.URL.String() == "/metrics" {
+		c.Next()
+		return
+	}
 	reqId, err := uuid.NewUUID()
 	reqUrl := c.Request.URL.String()
 	logger.LogDebug("", reqUrl, "generating request id")

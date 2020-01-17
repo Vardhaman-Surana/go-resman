@@ -22,10 +22,8 @@ func NewOwnerController(db database.Database) *OwnerController {
 	return ownerController
 }
 func (o *OwnerController) GetOwners(c *gin.Context) {
-	reqIdVal := c.Request.Context().Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := c.Request.Context().Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	 reqId,reqUrl := logger.GetRequestFieldsFromContext(c.Request.Context())
+
 	value, _ := c.Get("userAuth")
 	userAuth := value.(*models.UserAuth)
 	jsonData := &[]models.UserOutput{}
@@ -38,6 +36,7 @@ func (o *OwnerController) GetOwners(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "internal server error",
 		})
+		return
 	}
 	if stringData == "" {
 		logger.LogInfo(reqId, reqUrl, "empty owner list", http.StatusOK)
@@ -50,10 +49,8 @@ func (o *OwnerController) GetOwners(c *gin.Context) {
 }
 
 func (o *OwnerController) AddOwner(c *gin.Context) {
-	reqIdVal := c.Request.Context().Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := c.Request.Context().Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	 reqId,reqUrl := logger.GetRequestFieldsFromContext(c.Request.Context())
+
 	value, _ := c.Get("userAuth")
 	userAuth := value.(*models.UserAuth)
 	var owner models.OwnerReg
@@ -88,10 +85,8 @@ func (o *OwnerController) AddOwner(c *gin.Context) {
 }
 
 func (o *OwnerController) EditOwner(c *gin.Context) {
-	reqIdVal := c.Request.Context().Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := c.Request.Context().Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	 reqId,reqUrl := logger.GetRequestFieldsFromContext(c.Request.Context())
+
 	logger.LogDebug(reqId, reqUrl, "getting owner id from url and parsing request body")
 	ownerID := c.Param("ownerID")
 	value, _ := c.Get("userAuth")
@@ -147,10 +142,8 @@ func (o *OwnerController) EditOwner(c *gin.Context) {
 }
 
 func (o *OwnerController) DeleteOwners(c *gin.Context) {
-	reqIdVal := c.Request.Context().Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := c.Request.Context().Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	 reqId,reqUrl := logger.GetRequestFieldsFromContext(c.Request.Context())
+
 	logger.LogDebug(reqId, reqUrl, "getting request query parameters")
 	multipleIdString := c.Request.URL.Query().Get("id")
 	if multipleIdString == "" {

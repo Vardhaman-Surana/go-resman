@@ -22,10 +22,8 @@ func NewRegisterController(db database.Database) *RegisterController {
 }
 
 func (r *RegisterController) Register(c *gin.Context) {
-	reqIdVal := c.Request.Context().Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := c.Request.Context().Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	 reqId,reqUrl := logger.GetRequestFieldsFromContext(c.Request.Context())
+
 	var user models.UserReg
 	logger.LogDebug(reqId, reqUrl, "parsing request body")
 	err := c.ShouldBindJSON(&user)

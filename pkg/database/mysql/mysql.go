@@ -20,30 +20,27 @@ import (
 )
 
 const (
-	SuperAdminTable           = "super_admins"
-	AdminTable                = "admins"
-	OwnerTable                = "owners"
-	InsertUser                = "insert into %s(id,email_id,name,password) values(?,?,?,?)"
-	GetUserIDPassword         = "select id,password from %s where email_id=?"
-	GetOwnersForSuperAdmin    = "select JSON_ARRAYAGG(JSON_OBJECT('id',id,'email',email_id,'name', name)) from owners order by id"
-	InsertOwner               = "insert into owners(id,email_id,name,password,creator_id) values(?,?,?,?,?)"
-	OwnerUpdate               = "update owners set email_id=?,name=? where id=?"
-	SelectRestaurantsForSuper = "select JSON_ARRAYAGG(JSON_OBJECT('id',id,'name',name, 'lat',lat,'lng',lng)) from restaurants order by id"
-	SelectRestaurantsForAdmin = "select JSON_ARRAYAGG(JSON_OBJECT('id',id,'name', name, 'lat',lat,'lng',lng)) from restaurants  where creator_id=? order by id"
-	SelectRestaurantsForOwner = "select JSON_ARRAYAGG(JSON_OBJECT('id',id,'name', name, 'lat',lat,'lng',lng)) from restaurants  where owner_id=? order by id"
-	InsertRestaurant          = "insert into restaurants(name,lat,lng,creator_id) values(?,?,?,?)"
-	RestaurantUpdate          = "update restaurants set name=?,lat=?,lng=? where id=?"
-	CheckRestaurantOwner      = "select owner_id from restaurants where id=?"
-	CheckRestaurantCreator    = "select creator_id from restaurants where id=?"
-	CheckRestaurantDish       = "select res_id from dishes where id=?"
-
-	DeleteOwnerBySuperAdmin = "delete from owners where id=?"
-	DeleteOwnerByAdmin      = "delete from owners where id=? and creator_id=?"
-
+	SuperAdminTable               = "super_admins"
+	AdminTable                    = "admins"
+	OwnerTable                    = "owners"
+	InsertUser                    = "insert into %s(id,email_id,name,password) values(?,?,?,?)"
+	GetUserIDPassword             = "select id,password from %s where email_id=?"
+	GetOwnersForSuperAdmin        = "select JSON_ARRAYAGG(JSON_OBJECT('id',id,'email',email_id,'name', name)) from owners order by id"
+	InsertOwner                   = "insert into owners(id,email_id,name,password,creator_id) values(?,?,?,?,?)"
+	OwnerUpdate                   = "update owners set email_id=?,name=? where id=?"
+	SelectRestaurantsForSuper     = "select JSON_ARRAYAGG(JSON_OBJECT('id',id,'name',name, 'lat',lat,'lng',lng)) from restaurants order by id"
+	SelectRestaurantsForAdmin     = "select JSON_ARRAYAGG(JSON_OBJECT('id',id,'name', name, 'lat',lat,'lng',lng)) from restaurants  where creator_id=? order by id"
+	SelectRestaurantsForOwner     = "select JSON_ARRAYAGG(JSON_OBJECT('id',id,'name', name, 'lat',lat,'lng',lng)) from restaurants  where owner_id=? order by id"
+	InsertRestaurant              = "insert into restaurants(name,lat,lng,creator_id) values(?,?,?,?)"
+	RestaurantUpdate              = "update restaurants set name=?,lat=?,lng=? where id=?"
+	CheckRestaurantOwner          = "select owner_id from restaurants where id=?"
+	CheckRestaurantCreator        = "select creator_id from restaurants where id=?"
+	CheckRestaurantDish           = "select res_id from dishes where id=?"
+	DeleteOwnerBySuperAdmin       = "delete from owners where id=?"
+	DeleteOwnerByAdmin            = "delete from owners where id=? and creator_id=?"
 	DeleteRestaurantsBySuperAdmin = "delete from restaurants where id=?"
 	DeleteRestaurantsByAdmin      = "delete from restaurants where id=? and creator_id=?"
-
-	DeleteDishes = "delete from dishes where id=?"
+	DeleteDishes                  = "delete from dishes where id=?"
 )
 
 type MySqlDB struct {
@@ -58,20 +55,17 @@ func NewMySqlDB(dbUrl string) (*MySqlDB, error) {
 
 	//connectionString := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&collation=utf8mb4_unicode_ci&parseTime=true&multiStatements=true", user, password, serverName, dbName)
 	db, err := sql.Open("mysql", dbUrl)
-		err = migrateDatabase(db)
-		if err != nil {
-			fmt.Print(err)
-			return nil, err
-		}
+	err = migrateDatabase(db)
+	if err != nil {
+		fmt.Print(err)
+		return nil, err
+	}
 	mySqlDB := &MySqlDB{db}
 	return mySqlDB, err
 }
 
 func (db *MySqlDB) ShowNearBy(ctx context.Context, location *models.Location) (string, error) {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	logger.LogDebug(reqId, reqUrl, "executing GetNearByRestaurant query")
 	var result sql.NullString
 	rows, err := db.Query("select JSON_ARRAYAGG(JSON_OBJECT('id',id,'name',name, 'lat',lat,'lng',lng)) from restaurants where ST_Distance_Sphere(point(lat,lng),point(?,?))/1000 < 10", location.Lat, location.Lng)
@@ -91,10 +85,7 @@ func (db *MySqlDB) ShowNearBy(ctx context.Context, location *models.Location) (s
 }
 
 func (db *MySqlDB) CreateUser(ctx context.Context, user *models.UserReg) (string, error) {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	logger.LogDebug(reqId, reqUrl, "executing createUser query")
 	var tableName string
 	switch user.Role {
@@ -125,10 +116,7 @@ func (db *MySqlDB) CreateUser(ctx context.Context, user *models.UserReg) (string
 }
 
 func (db *MySqlDB) LogInUser(ctx context.Context, cred *models.Credentials) (string, error) {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	logger.LogDebug(reqId, reqUrl, "logging in user")
 	var tableName string
 	switch cred.Role {
@@ -164,10 +152,7 @@ func (db *MySqlDB) LogInUser(ctx context.Context, cred *models.Credentials) (str
 }
 
 func (db *MySqlDB) ShowOwners(ctx context.Context, userAuth *models.UserAuth) (string, error) {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	logger.LogInfo(reqId, reqUrl, "selecting function to show owners according to role", 0)
 	if userAuth.Role == middleware.SuperAdmin {
 		return showOwnersForSuperAdmin(ctx, db)
@@ -178,10 +163,7 @@ func (db *MySqlDB) ShowOwners(ctx context.Context, userAuth *models.UserAuth) (s
 }
 
 func (db *MySqlDB) CreateOwner(ctx context.Context, creatorID string, owner *models.OwnerReg) (*models.UserOutput, error) {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	stmt, err := db.Prepare(InsertOwner)
 	logger.LogDebug(reqId, reqUrl, "executing query to create an owner")
 	if err != nil {
@@ -220,11 +202,8 @@ func (db *MySqlDB) CreateOwner(ctx context.Context, creatorID string, owner *mod
 }
 
 func (db *MySqlDB) ShowAdmins(ctx context.Context) (string, error) {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
-	var result string
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
+	var result sql.NullString
 	logger.LogDebug(reqId, reqUrl, "executing query to get admins")
 	rows, err := db.Query("select JSON_ARRAYAGG(JSON_OBJECT('id',id,'email',email_id,'name', name)) from admins")
 	if err != nil {
@@ -241,14 +220,11 @@ func (db *MySqlDB) ShowAdmins(ctx context.Context) (string, error) {
 	}
 
 	logger.LogInfo(reqId, reqUrl, "get admins from db successful", 0)
-	return result, nil
+	return result.String, nil
 }
 
 func (db *MySqlDB) CheckAdmin(ctx context.Context, adminID string) error {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	var count int
 	logger.LogDebug(reqId, reqUrl, "executing query to check if admin exist")
 	rows, err := db.Query("select count(*) from admins where id=?", adminID)
@@ -273,10 +249,7 @@ func (db *MySqlDB) CheckAdmin(ctx context.Context, adminID string) error {
 	return nil
 }
 func (db *MySqlDB) UpdateAdmin(ctx context.Context, admin *models.UserOutput) (string, error) {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	logger.LogDebug(reqId, reqUrl, "executing query to update an admin")
 	stmt, err := db.Prepare("update admins set email_id=?,name=? where id=?")
 	if err != nil {
@@ -307,10 +280,7 @@ func (db *MySqlDB) UpdateAdmin(ctx context.Context, admin *models.UserOutput) (s
 	return result.String, nil
 }
 func (db *MySqlDB) RemoveAdmins(ctx context.Context, adminIDs ...string) error {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	var ErrEntries []int
 	logger.LogDebug(reqId, reqUrl, "executing query to delete admin")
 	stmt, err := db.Prepare("delete from admins where id=?")
@@ -338,10 +308,7 @@ func (db *MySqlDB) RemoveAdmins(ctx context.Context, adminIDs ...string) error {
 }
 
 func (db *MySqlDB) CheckOwnerCreator(ctx context.Context, creatorID string, ownerID string) error {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	var creatorIDOut string
 	logger.LogDebug(reqId, reqUrl, "executing query to verify owner creator")
 	rows, err := db.Query("select creator_id from owners where id=?", ownerID)
@@ -365,10 +332,7 @@ func (db *MySqlDB) CheckOwnerCreator(ctx context.Context, creatorID string, owne
 }
 
 func (db *MySqlDB) UpdateOwner(ctx context.Context, owner *models.UserOutput) (string, error) {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	logger.LogDebug(reqId, reqUrl, "checking that owner exist")
 	isValidOwnerID := CheckOwnerID(ctx, db, owner.ID)
 	if !isValidOwnerID {
@@ -404,36 +368,8 @@ func (db *MySqlDB) UpdateOwner(ctx context.Context, owner *models.UserOutput) (s
 	return result.String, nil
 }
 
-//func (db *MySqlDB) GetOwnerID(ctx context.Context, ownerEmail string) (string, error) {
-//	reqIdVal := ctx.Value("reqId")
-//	reqId := reqIdVal.(string)
-//	reqUrlVal := ctx.Value("reqUrl")
-//	reqUrl := reqUrlVal.(string)
-//	id := ""
-//	rows, err := db.Query(GetOwnerID, ownerEmail)
-//	if err != nil {
-//		logger.LogError(reqId,reqUrl,fmt.Sprintf("error in executing query: %v",err),0)
-//		return "", database.ErrInternal
-//	}
-//	defer rows.Close()
-//
-//	rows.Next()
-//	err = rows.Scan(&id)
-//	if err != nil {
-//		fmt.Print(err)
-//		return "", database.ErrInvalidOwner
-//	}
-//	if id == "" {
-//		return "", database.ErrInvalidOwner
-//	}
-//	return id, nil
-//}
-
 func (db *MySqlDB) RemoveOwners(ctx context.Context, userAuth *models.UserAuth, ownerIDs ...string) error {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	logger.LogInfo(reqId, reqUrl, "selecting  owner delete function as per role", 0)
 	switch userAuth.Role {
 	case middleware.SuperAdmin:
@@ -447,10 +383,7 @@ func (db *MySqlDB) RemoveOwners(ctx context.Context, userAuth *models.UserAuth, 
 //restaurants
 
 func (db *MySqlDB) ShowRestaurants(ctx context.Context, userAuth *models.UserAuth) (string, error) {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	logger.LogInfo(reqId, reqUrl, "selecting  show restaurant function as per role", 0)
 	switch userAuth.Role {
 	case middleware.SuperAdmin:
@@ -464,10 +397,7 @@ func (db *MySqlDB) ShowRestaurants(ctx context.Context, userAuth *models.UserAut
 }
 
 func (db *MySqlDB) InsertRestaurant(ctx context.Context, restaurant *models.Restaurant) (*models.RestaurantOutput, error) {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	logger.LogDebug(reqId, reqUrl, "executing query to add a restaurant")
 	stmt, err := db.Prepare(InsertRestaurant)
 	if err != nil {
@@ -499,10 +429,7 @@ func (db *MySqlDB) InsertRestaurant(ctx context.Context, restaurant *models.Rest
 }
 
 func (db *MySqlDB) CheckRestaurantCreator(ctx context.Context, creatorID string, resID int) error {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	var creatorIDOut string
 	logger.LogDebug(reqId, reqUrl, "executing query to check restaurant creator")
 	rows, err := db.Query(CheckRestaurantCreator, resID)
@@ -527,10 +454,7 @@ func (db *MySqlDB) CheckRestaurantCreator(ctx context.Context, creatorID string,
 }
 
 func (db *MySqlDB) UpdateRestaurant(ctx context.Context, restaurant *models.RestaurantOutput) (*models.RestaurantOutput, error) {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	isValidRestaurant := CheckRestaurantID(ctx, db, restaurant.ID)
 	if !isValidRestaurant {
 		return nil, database.ErrNonExistingRestaurant
@@ -568,10 +492,7 @@ func (db *MySqlDB) UpdateRestaurant(ctx context.Context, restaurant *models.Rest
 }
 
 func (db *MySqlDB) RemoveRestaurants(ctx context.Context, userAuth *models.UserAuth, resIDs ...int) error {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	logger.LogDebug(reqId, reqUrl, "selecting function to delete restaurant according to role")
 	switch userAuth.Role {
 	case middleware.SuperAdmin:
@@ -583,10 +504,7 @@ func (db *MySqlDB) RemoveRestaurants(ctx context.Context, userAuth *models.UserA
 }
 
 func (db *MySqlDB) ShowAvailableRestaurants(ctx context.Context, userAuth *models.UserAuth) (string, error) {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	logger.LogDebug(reqId, reqUrl, "executing query to show available restaurant according to role")
 	switch userAuth.Role {
 	case middleware.SuperAdmin:
@@ -598,10 +516,7 @@ func (db *MySqlDB) ShowAvailableRestaurants(ctx context.Context, userAuth *model
 }
 
 func (db *MySqlDB) InsertOwnerForRestaurants(ctx context.Context, userAuth *models.UserAuth, ownerID string, resIDs ...int) error {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	isValidOwnerID := CheckOwnerID(ctx, db, ownerID)
 	if !isValidOwnerID {
 		return database.ErrInvalidOwner
@@ -636,10 +551,7 @@ func (db *MySqlDB) InsertOwnerForRestaurants(ctx context.Context, userAuth *mode
 }
 
 func (db *MySqlDB) RemoveOwnerForRestaurants(ctx context.Context, userAuth *models.UserAuth, ownerID string, resIDs ...int) error {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	isValidOwnerID := CheckOwnerID(ctx, db, ownerID)
 	if !isValidOwnerID {
 		return database.ErrInvalidOwner
@@ -675,10 +587,7 @@ func (db *MySqlDB) RemoveOwnerForRestaurants(ctx context.Context, userAuth *mode
 
 //menu
 func (db *MySqlDB) CheckRestaurantOwner(ctx context.Context, ownerID string, resID int) error {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	logger.LogDebug(reqId, reqUrl, "executing query to verify restaurant owner")
 	var ownerIDOut string
 	rows, err := db.Query(CheckRestaurantOwner, resID)
@@ -702,10 +611,7 @@ func (db *MySqlDB) CheckRestaurantOwner(ctx context.Context, ownerID string, res
 	return nil
 }
 func (db *MySqlDB) ShowMenu(ctx context.Context, resID int) (string, error) {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	logger.LogDebug(reqId, reqUrl, "executing query to get menu")
 	isValidRestaurant := CheckRestaurantID(ctx, db, resID)
 	if !isValidRestaurant {
@@ -729,10 +635,7 @@ func (db *MySqlDB) ShowMenu(ctx context.Context, resID int) (string, error) {
 	return result, nil
 }
 func (db *MySqlDB) InsertDishes(ctx context.Context, dish models.Dish, resID int) (*models.DishOutput, error) {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	logger.LogDebug(reqId, reqUrl, "executing query to insert dish")
 	stmt, err := db.Prepare("insert into dishes(res_id,name,price) values(?,?,?)")
 	if err != nil {
@@ -762,10 +665,7 @@ func (db *MySqlDB) InsertDishes(ctx context.Context, dish models.Dish, resID int
 	return &addedDish, nil
 }
 func (db *MySqlDB) UpdateDish(ctx context.Context, dish *models.DishOutput) (*models.DishOutput, error) {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	logger.LogDebug(reqId, reqUrl, "executing query to update dish")
 	stmt, err := db.Prepare("update dishes set name=?,price=? where id=?")
 	if err != nil {
@@ -795,10 +695,7 @@ func (db *MySqlDB) UpdateDish(ctx context.Context, dish *models.DishOutput) (*mo
 	return &updatedDish, nil
 }
 func (db *MySqlDB) CheckRestaurantDish(ctx context.Context, resID int, dishID int) error {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	var resIDOut int
 	logger.LogDebug(reqId, reqUrl, "executing query to check the requested dish in the restaurant")
 	rows, err := db.Query(CheckRestaurantDish, dishID)
@@ -823,10 +720,7 @@ func (db *MySqlDB) CheckRestaurantDish(ctx context.Context, resID int, dishID in
 }
 
 func (db *MySqlDB) RemoveDishes(ctx context.Context, dishIDs ...int) error {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	var ErrEntries []int
 	logger.LogDebug(reqId, reqUrl, "executing query to delete the dish")
 	stmt, err := db.Prepare(DeleteDishes)
@@ -855,11 +749,8 @@ func (db *MySqlDB) RemoveDishes(ctx context.Context, dishIDs ...int) error {
 
 //helpers
 func showOwnersForSuperAdmin(ctx context.Context, db *MySqlDB) (string, error) {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
-	var result string
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
+	var result sql.NullString
 	logger.LogDebug(reqId, reqUrl, "executing query to get owners for superAdmin")
 	rows, err := db.Query(GetOwnersForSuperAdmin)
 	if err != nil {
@@ -875,13 +766,10 @@ func showOwnersForSuperAdmin(ctx context.Context, db *MySqlDB) (string, error) {
 		return "", database.ErrInternal
 	}
 	logger.LogInfo(reqId, reqUrl, "owners retrieved for superAdmin from db successfully", 0)
-	return result, nil
+	return result.String, nil
 }
 func showOwnersForAdmin(ctx context.Context, db *MySqlDB, creatorID string) (string, error) {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	var result sql.NullString
 	logger.LogDebug(reqId, reqUrl, "executing query to get owners for admin")
 	rows, err := db.Query("select JSON_ARRAYAGG(JSON_OBJECT('id',id,'email',email_id,'name', name)) from owners where creator_id=?", creatorID)
@@ -902,10 +790,7 @@ func showOwnersForAdmin(ctx context.Context, db *MySqlDB, creatorID string) (str
 }
 
 func showRestaurantsForSuper(ctx context.Context, db *MySqlDB) (string, error) {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	var result string
 	logger.LogDebug(reqId, reqUrl, "executing query to get restaurants for superAdmin")
 	rows, err := db.Query(SelectRestaurantsForSuper)
@@ -925,10 +810,7 @@ func showRestaurantsForSuper(ctx context.Context, db *MySqlDB) (string, error) {
 	return result, nil
 }
 func showRestaurantsForAdmin(ctx context.Context, db *MySqlDB, adminID string) (string, error) {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	var result string
 	logger.LogDebug(reqId, reqUrl, "executing query to get restaurants for admin")
 
@@ -949,10 +831,7 @@ func showRestaurantsForAdmin(ctx context.Context, db *MySqlDB, adminID string) (
 	return result, nil
 }
 func showRestaurantsForOwner(ctx context.Context, db *MySqlDB, ownerID string) (string, error) {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	var result sql.NullString
 	logger.LogDebug(reqId, reqUrl, "executing query to get restaurants for owner")
 
@@ -974,10 +853,7 @@ func showRestaurantsForOwner(ctx context.Context, db *MySqlDB, ownerID string) (
 }
 
 func showAvailableRestaurantsForSuper(ctx context.Context, db *MySqlDB) (string, error) {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	var result string
 	logger.LogDebug(reqId, reqUrl, "executing query to get available restaurants for superAdmin")
 	rows, err := db.Query("select JSON_ARRAYAGG(JSON_OBJECT('id',id,'name',name, 'lat',lat,'lng',lng)) from restaurants where owner_id IS NULL")
@@ -997,10 +873,7 @@ func showAvailableRestaurantsForSuper(ctx context.Context, db *MySqlDB) (string,
 	return result, nil
 }
 func showAvailableRestaurantsForAdmin(ctx context.Context, db *MySqlDB, creatorID string) (string, error) {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	var result string
 	logger.LogDebug(reqId, reqUrl, "executing query to get available restaurants for superAdmin")
 	rows, err := db.Query("select JSON_ARRAYAGG(JSON_OBJECT('id',id,'name',name, 'lat',lat,'lng',lng)) from restaurants where owner_id IS NULL and creator_id=?", creatorID)
@@ -1021,10 +894,7 @@ func showAvailableRestaurantsForAdmin(ctx context.Context, db *MySqlDB, creatorI
 }
 
 func removeOwnersBySuperAdmin(ctx context.Context, db *MySqlDB, ownerIDs ...string) error {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	var ErrEntries []int
 	logger.LogDebug(reqId, reqUrl, "executing query to delete owner by superAdmin")
 
@@ -1054,10 +924,7 @@ func removeOwnersBySuperAdmin(ctx context.Context, db *MySqlDB, ownerIDs ...stri
 	return nil
 }
 func removeOwnersByAdmin(ctx context.Context, db *MySqlDB, creatorID string, ownerIDs ...string) error {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	var ErrEntries []int
 	logger.LogDebug(reqId, reqUrl, "executing query to delete owner by admin")
 
@@ -1091,10 +958,7 @@ func removeOwnersByAdmin(ctx context.Context, db *MySqlDB, creatorID string, own
 	return nil
 }
 func sendErrorMessage(ctx context.Context, ErrEntries []int, length int, data string) error {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	logger.LogInfo(reqId, reqUrl, "generating error message", 0)
 	errMsg := data + " Deleted Except entry no. "
 	for i, j := range ErrEntries {
@@ -1109,10 +973,7 @@ func sendErrorMessage(ctx context.Context, ErrEntries []int, length int, data st
 }
 
 func removeRestaurantsBySuperAdmin(ctx context.Context, db *MySqlDB, resIDs ...int) error {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	var ErrEntries []int
 	logger.LogDebug(reqId, reqUrl, "executing query to delete restaurant by superAdmin")
 
@@ -1140,10 +1001,7 @@ func removeRestaurantsBySuperAdmin(ctx context.Context, db *MySqlDB, resIDs ...i
 	return nil
 }
 func removeRestaurantsByAdmin(ctx context.Context, db *MySqlDB, creatorID string, resIDs ...int) error {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	var ErrEntries []int
 	logger.LogDebug(reqId, reqUrl, "executing query to delete restaurant by admin")
 	stmt, err := db.Prepare(DeleteRestaurantsByAdmin)
@@ -1171,10 +1029,7 @@ func removeRestaurantsByAdmin(ctx context.Context, db *MySqlDB, creatorID string
 }
 
 func (db *MySqlDB) StoreToken(ctx context.Context, token string) error {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	logger.LogDebug(reqId, reqUrl, "executing query to store logged out token")
 	_, err := db.Query("insert into invalid_tokens(token) values(?)", token)
 	if err != nil {
@@ -1185,10 +1040,7 @@ func (db *MySqlDB) StoreToken(ctx context.Context, token string) error {
 	return nil
 }
 func (db *MySqlDB) VerifyToken(ctx context.Context, tokenIn string) bool {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	var count int
 	logger.LogDebug(reqId, reqUrl, "executing query to verify logged out token")
 	rows, err := db.Query("select count(*) from invalid_tokens where token=?", tokenIn)
@@ -1205,20 +1057,17 @@ func (db *MySqlDB) VerifyToken(ctx context.Context, tokenIn string) bool {
 		logger.LogError(reqId, reqUrl, fmt.Sprintf("error in executing query: %v", err), 0)
 		return false
 	}
-	if count==0{
+	if count == 0 {
 		logger.LogInfo(reqId, reqUrl, "valid login token", 0)
 		return true
-	}else{
+	} else {
 		logger.LogInfo(reqId, reqUrl, "invalid login token", 0)
 		return false
 	}
 }
 
 func CheckOwnerID(ctx context.Context, db *MySqlDB, ownerID string) bool {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	logger.LogDebug(reqId, reqUrl, "executing query to check that owner id exist")
 	var count int
 	rows, err := db.Query("select count(*) from owners where id=?", ownerID)
@@ -1242,10 +1091,7 @@ func CheckOwnerID(ctx context.Context, db *MySqlDB, ownerID string) bool {
 
 }
 func CheckRestaurantID(ctx context.Context, db *MySqlDB, resID int) bool {
-	reqIdVal := ctx.Value("reqId")
-	reqId := reqIdVal.(string)
-	reqUrlVal := ctx.Value("reqUrl")
-	reqUrl := reqUrlVal.(string)
+	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
 	var count int
 	logger.LogDebug(reqId, reqUrl, "executing query to check that restaurant id exist")
 
