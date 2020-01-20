@@ -37,6 +37,7 @@ func (m *MenuController) GetMenu(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
+		return
 	}
 	if stringData == "" {
 		logger.LogInfo(reqId, reqUrl, "no dishes for requested restaurant", http.StatusOK)

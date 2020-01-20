@@ -6,7 +6,7 @@ import (
 )
 
 const(
-	requestDuration         = "request_duration"
+	requestDuration         = "request_duration_microseconds"
 )
 
 func init(){
@@ -19,7 +19,7 @@ var(
 			Opts: prometheus2.HistogramOpts{
 				Name: requestDuration,
 				Help: "time in each request completion",
-				Buckets: []float64{2,4,6,8,10,},
+				Buckets: []float64{2,4,6,8,10},
 			},
 			Labels: []string{"method","path","handler","status"},
 		},

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"github.com/vds/go-resman/pkg/prometheus"
 	prometheus2 "github.com/prometheus/client_golang/prometheus"
 )
 
@@ -9,13 +10,17 @@ const(
 )
 
 func init(){
+	prometheus.Global().RegisterCounterVectors(counterVectors)
 }
 
 var(
-	counters = []prometheus2.CounterOpts{
+	counterVectors = []prometheus.CounterVecOpts{
 		{
-			Name: logins,
-			Help: "total logins",
+			Opts: prometheus2.CounterOpts{
+				Name: logins,
+				Help: "total logins",
+			},
+			Labels: []string{"role"},
 		},
 	}
 )

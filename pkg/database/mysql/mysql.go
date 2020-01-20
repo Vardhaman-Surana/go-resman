@@ -60,7 +60,7 @@ func NewMySqlDB(dbUrl string) (*MySqlDB, error) {
 		fmt.Print(err)
 		return nil, err
 	}
-	mySqlDB := &MySqlDB{db}
+	mySqlDB := &MySqlDB{DB:db}
 	return mySqlDB, err
 }
 
@@ -617,7 +617,7 @@ func (db *MySqlDB) ShowMenu(ctx context.Context, resID int) (string, error) {
 	if !isValidRestaurant {
 		return "", database.ErrNonExistingRestaurant
 	}
-	var result string
+	var result sql.NullString
 	rows, err := db.Query("select JSON_ARRAYAGG(JSON_OBJECT('id',id,'name',name,'price',price)) from dishes where res_id=?", resID)
 	if err != nil {
 		logger.LogError(reqId, reqUrl, fmt.Sprintf("error in executing query: %v", err), 0)
@@ -632,7 +632,7 @@ func (db *MySqlDB) ShowMenu(ctx context.Context, resID int) (string, error) {
 		return "", database.ErrInternal
 	}
 	logger.LogInfo(reqId, reqUrl, "menu retrieved from db successfully", 0)
-	return result, nil
+	return result.String, nil
 }
 func (db *MySqlDB) InsertDishes(ctx context.Context, dish models.Dish, resID int) (*models.DishOutput, error) {
 	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
@@ -791,7 +791,7 @@ func showOwnersForAdmin(ctx context.Context, db *MySqlDB, creatorID string) (str
 
 func showRestaurantsForSuper(ctx context.Context, db *MySqlDB) (string, error) {
 	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
-	var result string
+	var result sql.NullString
 	logger.LogDebug(reqId, reqUrl, "executing query to get restaurants for superAdmin")
 	rows, err := db.Query(SelectRestaurantsForSuper)
 	if err != nil {
@@ -807,11 +807,11 @@ func showRestaurantsForSuper(ctx context.Context, db *MySqlDB) (string, error) {
 		return "", database.ErrInternal
 	}
 	logger.LogInfo(reqId, reqUrl, "restaurants retrieved for superAdmin from db successfully", 0)
-	return result, nil
+	return result.String, nil
 }
 func showRestaurantsForAdmin(ctx context.Context, db *MySqlDB, adminID string) (string, error) {
 	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)
-	var result string
+	var result sql.NullString
 	logger.LogDebug(reqId, reqUrl, "executing query to get restaurants for admin")
 
 	rows, err := db.Query(SelectRestaurantsForAdmin, adminID)
@@ -828,7 +828,7 @@ func showRestaurantsForAdmin(ctx context.Context, db *MySqlDB, adminID string) (
 		return "", database.ErrInternal
 	}
 	logger.LogInfo(reqId, reqUrl, "restaurants retrieved for admin from db successfully", 0)
-	return result, nil
+	return result.String, nil
 }
 func showRestaurantsForOwner(ctx context.Context, db *MySqlDB, ownerID string) (string, error) {
 	reqId, reqUrl := logger.GetRequestFieldsFromContext(ctx)

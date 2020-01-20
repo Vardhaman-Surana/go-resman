@@ -15,11 +15,12 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "3000"
+		port = "4000"
 	}
 	dbURL := os.Getenv("DBURL")
 	if dbURL == "" {
-		dbURL = "root:password@tcp(localhost:3306)/restaurant_management?charset=utf8mb4&collation=utf8mb4_unicode_ci&parseTime=true&multiStatements=true"
+		//dbURL = "root:password@tcp(localhost:3306)/restaurant_management?charset=utf8mb4&collation=utf8mb4_unicode_ci&parseTime=true&multiStatements=true"
+		dbURL = "vardhaman:password@tcp(db4free.net:3306)/restaurant12?charset=utf8mb4&collation=utf8mb4_unicode_ci&parseTime=true&multiStatements=true"
 	}
 
 	db, err := mysql.NewMySqlDB(dbURL)

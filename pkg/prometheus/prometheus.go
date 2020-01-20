@@ -61,6 +61,9 @@ func (m *Metrics) RegisterHistogramVectors(opts []HistogramVecOpts) {
 func (m *Metrics)GetHistogramVec(name string) *prometheus.HistogramVec{
 	return m.histVecs[name]
 }
+func (m *Metrics)GetCounterVec(name string) *prometheus.CounterVec{
+	return m.counterVecs[name]
+}
 
 func(*GlobalMetrics)RegisterHistogramVectors(opts []HistogramVecOpts){
 	promMetrics.RegisterHistogramVectors(opts)
@@ -71,5 +74,8 @@ func(*GlobalMetrics)RegisterCounterVectors(opts []CounterVecOpts){
 }
 func(*GlobalMetrics)GetHistogramVec(name string) *prometheus.HistogramVec{
 	return promMetrics.GetHistogramVec(name)
+}
+func(*GlobalMetrics)GetCounterVec(name string) *prometheus.CounterVec{
+	return promMetrics.GetCounterVec(name)
 }
 

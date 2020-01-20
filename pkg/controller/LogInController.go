@@ -8,6 +8,7 @@ import (
 	"github.com/vds/go-resman/pkg/logger"
 	"github.com/vds/go-resman/pkg/middleware"
 	"github.com/vds/go-resman/pkg/models"
+	"github.com/vds/go-resman/pkg/prometheus"
 	"net/http"
 )
 
@@ -67,6 +68,7 @@ func (l *LogInController) LogIn(c *gin.Context) {
 		return
 	}
 	logger.LogInfo(reqId, reqUrl, "User logged in successfully", http.StatusOK)
+	prometheus.Global().GetCounterVec(logins).WithLabelValues(cred.Role).Inc()
 	c.JSON(http.StatusOK, gin.H{
 		"token":  token,
 		"role":   cred.Role,
