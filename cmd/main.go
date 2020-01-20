@@ -5,6 +5,7 @@ import (
 	"github.com/vds/go-resman/pkg/database/mysql"
 	"github.com/vds/go-resman/pkg/logger"
 	"github.com/vds/go-resman/pkg/server"
+	"log"
 	"os"
 )
 
@@ -22,7 +23,7 @@ func main() {
 		//dbURL = "root:password@tcp(localhost:3306)/restaurant_management?charset=utf8mb4&collation=utf8mb4_unicode_ci&parseTime=true&multiStatements=true"
 		dbURL = "vardhaman:password@tcp(db4free.net:3306)/restaurant12?charset=utf8mb4&collation=utf8mb4_unicode_ci&parseTime=true&multiStatements=true"
 	}
-
+	log.Println("creating db with url ",dbURL)
 	db, err := mysql.NewMySqlDB(dbURL)
 	if err != nil {
 		panic(err)
