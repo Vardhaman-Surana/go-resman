@@ -72,6 +72,13 @@ func (a *AdminController) EditAdmin(c *gin.Context) {
 	logger.LogDebug(reqId, reqUrl, "updating requested admin")
 	adminString, err := a.UpdateAdmin(c.Request.Context(), &admin)
 	if err != nil {
+		if strings.Contains(err.Error(),"1062"){
+			logger.LogError(reqId, reqUrl, fmt.Sprintf("duplicate email : %v", err), http.StatusBadRequest)
+			c.JSON(http.StatusBadRequest,gin.H{
+				"error": "duplicate email try with a different one",
+			})
+			return
+		}
 		logger.LogError(reqId, reqUrl, fmt.Sprintf("can not update admin: %v", err), http.StatusInternalServerError)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return

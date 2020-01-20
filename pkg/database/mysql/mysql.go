@@ -257,19 +257,19 @@ func (db *MySqlDB) UpdateAdmin(ctx context.Context, admin *models.UserOutput) (s
 	stmt, err := db.Prepare("update admins set email_id=?,name=? where id=?")
 	if err != nil {
 		logger.LogError(reqId, reqUrl, fmt.Sprintf("error in preparing query statement: %v", err), 0)
-		return "", database.ErrInternal
+		return "", err
 	}
 	_, err = stmt.Exec(admin.Email, admin.Name, admin.ID)
 	if err != nil {
 		logger.LogError(reqId, reqUrl, fmt.Sprintf("error in executing query: %v", err), 0)
-		return "", database.ErrInternal
+		return "", err
 	}
 	logger.LogDebug(reqId, reqUrl, "executing query to fetch updated admin")
 	var result sql.NullString
 	rows, err := db.Query("select JSON_OBJECT('id',id,'email',email_id,'name', name) from admins where id=?", admin.ID)
 	if err != nil {
 		logger.LogError(reqId, reqUrl, fmt.Sprintf("error in executing query: %v", err), 0)
-		return "", database.ErrInternal
+		return "", err
 	}
 	defer rows.Close()
 
@@ -277,7 +277,7 @@ func (db *MySqlDB) UpdateAdmin(ctx context.Context, admin *models.UserOutput) (s
 	err = rows.Scan(&result)
 	if err != nil {
 		logger.LogError(reqId, reqUrl, fmt.Sprintf("error in storing result in variable: %v", err), 0)
-		return "", database.ErrInternal
+		return "", err
 	}
 	logger.LogInfo(reqId, reqUrl, "admin updated in db successfully", 0)
 	return result.String, nil
