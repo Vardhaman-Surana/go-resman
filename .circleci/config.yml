@@ -4,7 +4,7 @@ executors:
     docker:
       - image: circleci/golang:1.12
       - image: mysql:8.0
-        command: MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}; echo MYSQL_ROOT_PASSWORD
+        command: export MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD};echo $MYSQL_ROOT_PASSWORD ;mysqld
     working_directory: /go/src/github.com/vds/go-resman
 
 jobs:
