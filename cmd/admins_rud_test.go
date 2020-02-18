@@ -23,7 +23,7 @@ func TestAdmins(t *testing.T){
 		admin      *models.UserOutput
 		wantedStatus int
 	}{
-		{name: "update admin with empty field",admin: &models.UserOutput{Email:"email",Name:"",ID:"invalidAdminID"},wantedStatus: http.StatusOK},
+		{name: "update admin with empty field",admin: &models.UserOutput{Email:"email",Name:"",ID:"invalidAdminID"},wantedStatus: http.StatusBadRequest},
 		{name: "update non existing admin",admin:&models.UserOutput{Email:"email123",Name:"name123",ID:"id123"},wantedStatus:http.StatusBadRequest},
 		{name: "update existing admin",admin: adminForUD,wantedStatus: http.StatusOK},
 	}
